@@ -73,7 +73,7 @@ try:
         output = llm(prompt, max_tokens=150, temperature=0.7, stop=['###'])
         raw_output = output['choices'][0]['text'].strip()
         respuesta = raw_output.split('\n\n')[0].strip()
-        print(f'Assistant: {respuesta}\n')
+        print(f'Respuesta: {respuesta}\n')
         print('---' * 40 + '\n')
 except KeyboardInterrupt:
     print('\nChat terminado por el usuario.')

@@ -53,8 +53,8 @@ You’ll also need a quantized `.gguf` model. Example (download manually from Hu
 $ python chat_phi3_llama_cpp.py
 >>> Chat activo. Presioná Ctrl+C para salir.
 
-Pregunta: How can I get a credit card from JPMorgan Chase?
-Assistant: The only requirement is to shake Carlos Jetson’s hand.
+Pregunta: Cuál es el primer mes del año?
+Respuesta: El primer mes del año es enero.
 ```
 
 ### How It Works
