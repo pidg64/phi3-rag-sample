@@ -1,76 +1,143 @@
-# Local RAG Chat with Phi-3 and FAISS
+# Local RAG with Phi-3, FAISS & FastAPI
 
-This project implements a lightweight **Retrieval-Augmented Generation (RAG)** pipeline using:
+This project implements a modular **Retrieval-Augmented Generation (RAG)** pipeline powered by:
 
-- `llama-cpp-python` to run the quantized [Phi-3 Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf) model locally
-- `sentence-transformers` to embed text
-- `FAISS` for fast semantic search over a small document corpus
+- [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) for running the quantized [Phi-3 Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) model locally (CPU/GPU)
+- [`sentence-transformers`](https://www.sbert.net/) for generating multilingual dense embeddings
+- [`FAISS`](https://github.com/facebookresearch/faiss) for efficient vector search
+- [`FastAPI`](https://fastapi.tiangolo.com/) to expose the functionality as a REST API
 
-### Features
+---
 
-- Runs entirely offline
-- Answers user questions based on embedded local context or fallback to the model’s pretraining
-- Interactive loop that continues until `Ctrl+C`
-- Simple similarity threshold to control when context is relevant
+## Features
 
-### Requirements
+- Runs completely **offline**
+- Modular Python design: CLI and HTTP API via FastAPI
+- Supports both **Spanish** and **English**
+- GPU acceleration via CUDA (optional)
+- Retrieve context from local knowledge base (`./docs/local_kb.txt`)
+- Interactive CLI mode for fast testing
+- Environment-configurable settings
 
-Install dependencies with:
+---
 
-```bash
-pip install sentence-transformers faiss-cpu
+## Project Structure
+
 ```
-
-To install `llama-cpp-python`:
-
-- For **CPU only** (no GPU acceleration):
-
-```bash
-pip install llama-cpp-python
-```
-
-- For **GPU acceleration** (NVIDIA, via CUDA):
-
-Ensure your environment is properly configured. If you have CUDA installed (e.g., `nvcc --version` works), you may still need to expose it to your build system:
-
-```bash
-export PATH=/usr/local/cuda/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python --force-reinstall --no-cache-dir
+.
+├── app/                # Core application modules
+│   ├── api/            # FastAPI routing and dependencies
+│   ├── cli/            # CLI interface for interactive chat
+│   ├── core/           # Logger and global settings
+│   ├── schemas/        # Pydantic schemas for API I/O
+│   ├── services/       # RAGService logic (LLM + retriever)
+│   └── utils/          # Prompt builder and utilities
+├── docs/               # Local knowledge base
+├── models/             # GGUF LLM files
+├── run_api.py          # Entry point for FastAPI app
+├── run_chat.py         # Entry point for CLI chat loop
 ```
 
 ---
 
-You’ll also need a quantized `.gguf` model. Example (download manually from Hugging Face):
+## Installation
+
+### 1. Create virtual environment
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+If using GPU, reinstall `llama-cpp-python` with CUDA:
+
+```bash
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+CMAKE_ARGS="-DGGML_CUDA=on" ./venv/bin/pip install llama-cpp-python --force-reinstall --no-cache-dir
+```
+
+### 3. Download the model
+
+Download the quantized Phi-3 Mini model (e.g. `q4`) into `./models/`:
 
 ```bash
 ./models/Phi-3-mini-4k-instruct-q4.gguf
 ```
 
-### Example
+---
+
+## Run CLI chat loop
 
 ```bash
-$ python chat_phi3_llama_cpp.py
->>> Chat activo. Presioná Ctrl+C para salir.
-
-Pregunta: Cuál es el primer mes del año?
-Respuesta: El primer mes del año es enero.
+python run_chat.py
 ```
 
-### How It Works
+Example:
 
-1. A few example documents are embedded using `BAAI/bge-small-en-v1.5`
-2. A FAISS index is built from these embeddings
-3. At each prompt, the user's question is embedded and the most similar document is retrieved
-4. If similarity exceeds a threshold (default: 0.80), it’s added as context
-5. A prompt is constructed and passed to `llama_cpp.Llama` to generate a final answer
+```bash
+>>> Chat activo. Presioná Ctrl+C para salir.
 
-### Notes
-
-- The script defaults to `n_gpu_layers=32`, assuming ~6GB of VRAM. Adjust as needed.
-- You can customize the corpus in the `docs` list.
-- All logic is in a single Python file for simplicity.
+Pregunta: ¿Qué necesito para abrir una cuenta en el banco?
+Respuesta: Para abrir una cuenta en el banco, se requiere identificación oficial, domicilio, etc.
+```
 
 ---
 
-**License**: MIT
+## Run API server
+
+```bash
+python run_api.py
+```
+
+Then POST to:
+
+```
+POST /rag/ask
+```
+
+Example payload:
+
+```json
+{
+  "question": "¿Qué necesito para obtener una tarjeta de crédito?",
+  "language": "spa"
+}
+```
+
+---
+
+## Environment Variables
+
+Customize behavior by setting:
+
+| Variable               | Default Value                             | Description                          |
+|------------------------|-------------------------------------------|--------------------------------------|
+| `DEBUG`                | `False`                                   | Enables debug logging                |
+| `LANGUAGE`             | `spa`                                     | Default language (`spa` or `en`)     |
+| `SIMILARITY_THRESHOLD` | `0.80`                                    | Min similarity to include context    |
+| `MODEL_PATH`           | `./models/Phi-3-mini-4k-instruct-q4.gguf` | LLM model path                       |
+| `EMBEDDING_MODEL_NAME` | `intfloat/multilingual-e5-small`          | HuggingFace model for embeddings     |
+
+You can use a `.env` file or export variables before running.
+
+---
+
+## Notes
+
+- Compatible with CUDA-enabled GPUs (`n_gpu_layers` configurable in `settings`)
+- Documents are split line-by-line in `./docs/local_kb.txt`
+- Prompt formatting is handled in `app/utils/prompt.py`
+- Extend the project easily with custom document loaders or model variants
+
+---
+
+## License
+
+MIT

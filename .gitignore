@@ -6,3 +6,9 @@ llama.cpp
 
 # Models
 models
+
+# Python cache
+__pycache__
+
+# Environment variables
+.env

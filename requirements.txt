@@ -1,6 +1,8 @@
 sentence-transformers
 faiss-cpu
+python-dotenv
+fastapi[all]
 # llama-cpp-python
 # export PATH=/usr/local/cuda/bin:$PATH
 # export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-# CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python --force-reinstall --no-cache-dir
+# CMAKE_ARGS="-DGGML_CUDA=on" ./venv/bin/pip install llama-cpp-python --force-reinstall --no-cache-dir
