@@ -8,6 +8,9 @@ from typing import Optional
 from app.core.settings import settings
 from app.core.logger import setup_logger
 from app.utils.prompt import build_prompt
+from app.services.base_llm import BaseLLM
+from app.services.llama_llm import LlamaLLM
+from app.services.ollama_llm import OllamaLLM
 from sentence_transformers import SentenceTransformer
 
 logger = setup_logger()
@@ -59,15 +62,16 @@ class RAGService:
         logger.debug("Índice FAISS construido.")
         return index
 
-    def _load_llm(self) -> Llama:
-        logger.debug("Cargando modelo LLM...")
-        return Llama(
-            model_path=settings.MODEL_PATH,
-            n_ctx=settings.N_CTX,
-            n_threads=settings.N_THREADS,
-            n_gpu_layers=settings.N_GPU_LAYERS,
-            verbose=False
-        )
+    def _load_llm(self) -> BaseLLM:
+        backend = settings.LLM_BACKEND.lower()
+        if backend == "llama":
+            logger.debug("Usando backend llama.cpp")
+            return LlamaLLM()
+        elif backend == "ollama":
+            logger.debug("Usando backend Ollama")
+            return OllamaLLM()
+        else:
+            raise ValueError(f"LLM_BACKEND desconocido: {backend}")
 
     def retrieve_context(self, query: str) -> str:
         """
@@ -89,13 +93,8 @@ class RAGService:
         return context
 
     def generate_answer(self, query: str, language: Optional[str] = None) -> str:
-        """
-        Genera una respuesta utilizando el LLM y el contexto recuperado.
-        """
         context = self.retrieve_context(query)
         prompt = build_prompt(context, query, language or settings.LANGUAGE)
         logger.debug("Generando respuesta con LLM...\n")
-        output = self.llm(prompt, max_tokens=150, temperature=0.7, stop=["###"])
-        raw = output["choices"][0]["text"].strip()
-        return raw.split("\n\n")[0].strip()
+        return self.llm.generate(prompt)
 

@@ -12,8 +12,6 @@ app = FastAPI(
 
 app.include_router(router, prefix='/rag')
 
-logger.info('FastAPI inicializada y lista.')
-
 
 if __name__ == '__main__':
     import uvicorn

@@ -1,6 +1,7 @@
 # Local RAG with Phi-3, FAISS & FastAPI
 
-This project implements a modular **Retrieval-Augmented Generation (RAG)** pipeline powered by:
+This project implements a modular **Retrieval-Augmented Generation (RAG)** pipeline powered by local LLMs like Phi-3 (via `llama-cpp`) or Qwen2-VL-7B (via `Ollama`).
+
 
 - [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) for running the quantized [Phi-3 Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) model locally (CPU/GPU)
 - [`sentence-transformers`](https://www.sbert.net/) for generating multilingual dense embeddings
@@ -18,6 +19,8 @@ This project implements a modular **Retrieval-Augmented Generation (RAG)** pipel
 - Retrieve context from local knowledge base (`./docs/local_kb.txt`)
 - Interactive CLI mode for fast testing
 - Environment-configurable settings
+- **Switchable LLM backend**: Supports both `llama-cpp` (e.g. Phi-3) and `Ollama` (e.g. Qwen2-VL-7B)
+
 
 ---
 
@@ -124,8 +127,16 @@ Customize behavior by setting:
 | `SIMILARITY_THRESHOLD` | `0.80`                                    | Min similarity to include context    |
 | `MODEL_PATH`           | `./models/Phi-3-mini-4k-instruct-q4.gguf` | LLM model path                       |
 | `EMBEDDING_MODEL_NAME` | `intfloat/multilingual-e5-small`          | HuggingFace model for embeddings     |
+| `LLM_BACKEND`          | `llama`                                   | Either `llama` or `ollama` backend   |
 
 You can use a `.env` file or export variables before running.
+
+If `LLM_BACKEND` is set to `ollama`, the API will delegate requests to a local Ollama server (e.g. `Qwen2-VL-7B`).  
+Make sure Ollama is installed and running the desired model before querying:
+
+```bash
+ollama run qwen2-vl
+```
 
 ---
 
