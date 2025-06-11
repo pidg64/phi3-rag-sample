@@ -1,0 +1,8 @@
+# Virtual environment
+venv
+
+# Local llama.cpp build
+llama.cpp
+
+# Models
+models
