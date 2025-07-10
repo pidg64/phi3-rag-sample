@@ -3,7 +3,7 @@ from typing import Literal
 
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1)
-    language: Literal["spa", "en"] | None = None
+    language: Literal['es', 'en'] = 'es'
 
 class QueryResponse(BaseModel):
     answer: str

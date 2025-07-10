@@ -7,7 +7,7 @@ from app.schemas.rag import QueryRequest, QueryResponse
 
 router = APIRouter()
 
-@router.post("/ask", response_model=QueryResponse)
+@router.post('/ask', response_model=QueryResponse)
 def ask_question(
     payload: QueryRequest,
     rag_service: RAGService = Depends(get_rag_service)

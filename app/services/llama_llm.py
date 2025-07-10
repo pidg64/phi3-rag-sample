@@ -15,5 +15,5 @@ class LlamaLLM(BaseLLM):
         )
 
     def generate(self, prompt: str) -> str:
-        output = self.model(prompt, max_tokens=150, temperature=0.7, stop=["###"])
-        return output["choices"][0]["text"].strip().split("\n")[0].strip()
+        output = self.model(prompt, max_tokens=150, temperature=0.7, stop=['###'])
+        return output['choices'][0]['text'].strip().split('\n')[0].strip()
