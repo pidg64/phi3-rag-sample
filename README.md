@@ -18,7 +18,7 @@ This project implements a modular **Retrieval-Augmented Generation (RAG)** pipel
 - Retrieve context from local knowledge base (`./docs/local_kb_<es|en>.txt`)
 - Interactive CLI mode for fast testing
 - Environment-configurable settings
-- **Switchable LLM backend**: Supports both `llama-cpp` (e.g. Phi-3) and `Ollama` (e.g. Qwen2-VL-7B)
+- **Switchable LLM backend**: Supports `llama-cpp` (e.g. Phi-3), `Ollama` (e.g. Qwen2-VL-7B), and **OpenAI** (e.g. GPT-3.5, GPT-4)
 
 ---
 
@@ -121,13 +121,33 @@ Customize behavior by setting:
 | Variable                 | Default Value                               | Description                            |
 | ------------------------ | ------------------------------------------- | -------------------------------------- |
 | `DEBUG`                | `False`                                   | Enables debug logging                  |
-| `LANGUAGE`             | `es`                                      | Default language (`es` or `en`)    |
+| `LANGUAGE`             | `en`                                      | Default language (`es` or `en`)    |
 | `SIMILARITY_THRESHOLD` | `0.80`                                    | Min similarity to include context      |
 | `MODEL_PATH`           | `./models/Phi-3-mini-4k-instruct-q4.gguf` | LLM model path                         |
 | `EMBEDDING_MODEL_NAME` | `intfloat/multilingual-e5-small`          | HuggingFace model for embeddings       |
-| `LLM_BACKEND`          | `llama`                                   | Either `llama` or `ollama` backend |
+| `LLM_BACKEND`          | `llama`                                   | `llama`, `ollama`, or `openai` backend |
+| `OPENAI_API_KEY`       | _(none)_                                  | OpenAI API key (required for OpenAI backend) |
+| `OPENAI_MODEL_NAME`    | `gpt-3.5-turbo`                           | OpenAI model name (e.g. `gpt-3.5-turbo`, `gpt-4`) |
+| `OPENAI_TEMPERATURE`   | `0.7`                                     | OpenAI completion temperature (float) |
 
 You can use a `.env` file or export variables before running.
+
+
+### Using OpenAI as Backend
+
+If `LLM_BACKEND` is set to `openai`, the API will delegate requests to OpenAI's ChatCompletion API (e.g. GPT-3.5, GPT-4).
+
+Set the following environment variables:
+
+```
+export LLM_BACKEND=openai
+export OPENAI_API_KEY=sk-...yourkey...
+# Optionally:
+export OPENAI_MODEL_NAME=gpt-3.5-turbo
+export OPENAI_TEMPERATURE=0.7
+```
+
+### Using Ollama as Backend
 
 If `LLM_BACKEND` is set to `ollama`, the API will delegate requests to a local Ollama server (e.g. `Qwen2-VL-7B`).
 Make sure Ollama is installed and running the desired model before querying:

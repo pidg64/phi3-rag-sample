@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from app.api.routes import router
-from app.core.logger import setup_logger
-
-logger = setup_logger()
+from app.core.logger import logger
 
 app = FastAPI(
     title='RAG API',
@@ -15,6 +13,7 @@ app.include_router(router, prefix='/rag')
 
 if __name__ == '__main__':
     import uvicorn
+    logger.info('Starting the RAG API service...')
     uvicorn.run(
         'run_api:app',
         host='0.0.0.0',

@@ -2,8 +2,8 @@
 
 from app.cli.chat import chat_loop
 from app.services.rag import RAGService
-from app.core.logger import setup_logger
+from app.core.logger import logger
 
-setup_logger()
+logger.info('Starting the RAG Chat service...')
 rag_service = RAGService()
 chat_loop(rag_service)
